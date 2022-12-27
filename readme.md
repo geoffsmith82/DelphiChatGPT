@@ -6,18 +6,17 @@
 
 ## Technologies Used
 
-* Delphi VCL or FMX / Lazarus
-* TMS FNC Core
+* Delphi VCL or FMX
 * Delphi JSON
 
 ## Description
 
-This is a simple demo of how to use the ChatGPT API from a Delphi or Lazarus app from any framework or any platform. Get the ChatGPT API key for your own use and add it to APIKEY.inc
+This is a simple demo of how to use the ChatGPT API from a Delphi or Lazarus app from any framework or any platform. Get the ChatGPT API key for your own use and add it to APIKEY.inc.
+This version is updated to use the standard Delphi REST components.
 
 ## Setup/Installation Requirements
 
 * Delphi 10.2 or newer
-* TMS FNC Core from https://www.tmssoftware.com/site/tmsfnccore.asp
 * Get the ChatGPT API key from https://beta.openai.com/account/api-keys 
 
 

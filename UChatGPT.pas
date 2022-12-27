@@ -4,8 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  VCL.TMSFNCCustomComponent;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
 type
   TForm1 = class(TForm)
@@ -29,11 +28,16 @@ implementation
 {$R *.dfm}
 
 uses
-  System.JSON, VCL.TMSFNCCloudBase;
+  System.JSON,
+  REST.Client,
+  REST.Types
+  ;
 
 function AskChatGPT(AQuestion: string): string;
 var
-  LCb: TTMSFNCCloudBase;
+  LClient : TRESTClient;
+  LRequest : TRESTRequest;
+  LResponse : TRESTResponse;
   LPostdata: string;
   LJsonValue: TJsonValue;
   LJsonArray: TJsonArray;
@@ -49,26 +53,29 @@ begin
     '}';
 
   // create instance of TMS FNC Cloud Base class
-  LCb := TTMSFNCCloudBase.Create;
+  LClient := TRESTClient.Create(nil);
+  LRequest := TRESTRequest.Create(nil);
+  LResponse := TRESTResponse.Create(nil);
+  LRequest.Client := LClient;
+  LRequest.Response := LResponse;
 
   try
     // Use JSON for the REST API calls and set API KEY via Authorization header
-    LCb.Request.AddHeader('Authorization','Bearer ' + CHATGPT_APIKEY);
-    LCb.Request.AddHeader('Content-Type','application/json');
+    LRequest.AddAuthParameter('Authorization', 'Bearer ' + CHATGPT_APIKEY, TRESTRequestParameterKind.pkHTTPHEADER, [poDoNotEncode]);
+    LRequest.Accept := '*/*';
 
     // Select HTTPS POST method, set POST data and specify endpoint URL
-    LCb.Request.Method := rmPOST;
-    LCb.Request.PostData := LPostData;
-    LCb.Request.Host := 'https://api.openai.com';
-    LCb.Request.Path := 'v1/completions';
+    LRequest.Method := rmPOST;
+    LRequest.AddBody(LPostData, CONTENTTYPE_APPLICATION_JSON);
+    LClient.BaseURL := 'https://api.openai.com';
+    LRequest.Resource := 'v1/completions';
 
     // Execute the HTTPS POST request synchronously (last param Async = false)
-    LCb.ExecuteRequest(nil,nil,false);
-
+    LRequest.Execute;
     // Process returned JSON when request was successful
-    if Lcb.RequestResult.Success then
+    if LRequest.Response.StatusCode = 200 then
     begin
-      LJsonValue := TJSonObject.ParseJSONValue(Lcb.RequestResult.ResultString);
+      LJsonValue := LResponse.JSONValue;
       LJsonValue := LJsonValue.GetValue<TJSonValue>('choices');
       if LJsonValue is TJSonArray then
       begin
@@ -79,9 +86,11 @@ begin
       else
     end
     else
-      raise Exception.Create('HTTP response code: ' + LCb.RequestResult.ResponseCode.ToString);
+      raise Exception.Create('HTTP response code: ' + LResponse.StatusCode.ToString);
   finally
-    LCb.Free;
+    FreeAndNil(LResponse);
+    FreeAndNil(LRequest);
+    FreeAndNil(LClient);
   end;
 end;
 
