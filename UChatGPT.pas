@@ -38,19 +38,18 @@ var
   LClient : TRESTClient;
   LRequest : TRESTRequest;
   LResponse : TRESTResponse;
-  LPostdata: string;
+  LJsonPostData : TJSONObject;
   LJsonValue: TJsonValue;
   LJsonArray: TJsonArray;
   LJSonString: TJsonString;
 begin
   Result := '';
 
-  LPostData := '{' +
-    '"model": "text-davinci-003",'+
-    '"prompt": "' + AQuestion + '",'+
-    '"max_tokens": 2048,'+
-    '"temperature": 0'+
-    '}';
+  LJsonPostData := TJSONObject.Create;
+  LJsonPostData.AddPair('model', 'text-davinci-003');
+  LJsonPostData.AddPair('prompt', AQuestion);
+  LJsonPostData.AddPair('max_tokens', TJSONNumber.Create(2048));
+  LJsonPostData.AddPair('temperature', TJSONNumber.Create(0));
 
   // create instance of TMS FNC Cloud Base class
   LClient := TRESTClient.Create(nil);
@@ -66,7 +65,7 @@ begin
 
     // Select HTTPS POST method, set POST data and specify endpoint URL
     LRequest.Method := rmPOST;
-    LRequest.AddBody(LPostData, CONTENTTYPE_APPLICATION_JSON);
+    LRequest.AddBody(LJsonPostData);
     LClient.BaseURL := 'https://api.openai.com';
     LRequest.Resource := 'v1/completions';
 
@@ -91,6 +90,7 @@ begin
     FreeAndNil(LResponse);
     FreeAndNil(LRequest);
     FreeAndNil(LClient);
+    FreeAndNil(LJsonPostData);
   end;
 end;
 
