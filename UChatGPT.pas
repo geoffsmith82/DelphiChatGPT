@@ -56,7 +56,6 @@ begin
     LJsonPostData.AddPair('max_tokens', TJSONNumber.Create(2048));
     LJsonPostData.AddPair('temperature', TJSONNumber.Create(0));
 
-    // create instance of TMS FNC Cloud Base class
     LClient := TRESTClient.Create(nil);
     LRequest := TRESTRequest.Create(nil);
     LResponse := TRESTResponse.Create(nil);

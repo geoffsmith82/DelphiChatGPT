@@ -1,5 +1,5 @@
 # ChatGPT for Delphi
-
+![](/logo.png)
 #### By Bruno Fierens
 
 #### Access the ChatGPT REST API from a Delphi app
